@@ -1,8 +1,8 @@
 {
-    "name": "Dvach/php-sdk",
+    "name": "dvach/dvach-php-sdk",
     "homepage": "https://2ch.hk",
     "description": "A PHP SDK for https://2ch.hk",
-    "keywords":["wish","php","sdk","merchant"],
+    "keywords":["2ch","Dvach","php","sdk","sosach","hikkach"],
     "authors": [
         {
             "name": "wertyzp"
