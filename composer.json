@@ -1,5 +1,5 @@
 {
-    "name": "dvach/dvach-php-sdk",
+    "name": "wertyzp/dvach-php-sdk",
     "homepage": "https://2ch.hk",
     "description": "A PHP SDK for https://2ch.hk",
     "keywords":["2ch","Dvach","php","sdk","sosach","hikkach"],
@@ -11,7 +11,7 @@
     "license":"LGPL",
     "minimum-stability": "dev",
     "require": {
-        "php":">5.3.0"
+        "php":">=5.3.0"
     },
     "autoload": {
         "psr-0": {
