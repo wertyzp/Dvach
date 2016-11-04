@@ -4,11 +4,7 @@ namespace Dvach;
 
 class Dvach extends WebLoader {
 
-    private $url;
-
-    public function __construct($url = "https://2ch.hk") {
-        $this->url = $url;
-    }
+    private $url = "https://2ch.hk";
 
     public function getBoards($flat = true) {
         $doc = $this->loadHTML($this->url);
@@ -39,36 +35,21 @@ class Dvach extends WebLoader {
         return $json['pages'];
     }
 
-    public function getThreads($board, $page = 0, $numsOnly = false) {
-        if ($page == 0) {
-            $page = 'index';
-        }
-        $url = "{$this->url}{$board}{$page}.json";
-        $result = $this->loadJSON($url);
-        if (!$numsOnly) {
-            return $result['threads'];
-        }
-        $threadNums = array();
-        foreach ($result['threads'] as $thread) {
-            $threadNums[] = $thread['thread_num'];
-        }
-        return $threadNums;
-    }
+    public function getThreads($board) {
+        // https://2ch.hk/b/catalog_num.json
+        $url = "$this->url/$board/catalog_num.json";
+        return $this->loadJSON($url);
+   }
 
     public function getThread($board, $thread) {
         $url = "{$this->url}$board/res/$thread.json";
         $result = $this->loadJSON($url);
-        if (!isset($result['threads'])) {
-            throw new Exception("Thread load failed");
-        }
-
         if (!is_array($result['threads'])) {
             throw new Exception("Bad thread data");
         }
-
-        return array_pop($result['threads']);
+        return $result;
     }
-
+    
     public function getThreadFiles($board, $thread, $flat = true, $absoluteUrl = true) {
         $thread = $this->getThread($board, $thread);
         $result = array();
@@ -90,27 +71,26 @@ class Dvach extends WebLoader {
         return $result;
     }
     
-    public function getThreadPosts($board, $thread, $stripTags = true, $br2nl = true) {
-        $thread = $this->getThread($board, $thread);
-        $result = array();
-        foreach ($thread['posts'] as $post) {
-            if (!empty($post['comment'])) {
-                $comment =$post['comment'];
-                
-                if($br2nl) {
-                    $comment = preg_replace("/(\r\n|\n|\r)/", "", $comment);
-                    $comment = preg_replace("=<br ? */?>=i", "\n", $comment);
-                }
-                
-                if($stripTags) {
-                    $comment = strip_tags($comment);
-                }
-                
-                $comment = html_entity_decode($comment);
-                $result[$post['num']] = $comment;
-            }
-        }
+    public function getThreadPosts($board, $threadNum) {
+        return $this->getThreadPostsByIndex($board, $threadNum, 1);
+    }
+    
+    public function getThreadPostsByNum($board, $threadNum, $postNum) {
+        $b = trim($board, "/");
+        $url = "{$this->url}/makaba/mobile.fcgi?task=get_thread&board=$b&thread=$threadNum&num=$postNum";
+        $result = $this->loadJSON($url);
         return $result;
     }
     
+    public function getThreadPostsByIndex($board, $threadNum, $postIndex = 1) {
+        $b = trim($board, "/");
+        $url = "{$this->url}/makaba/mobile.fcgi?task=get_thread&board=$b&thread=$threadNum&post=$postIndex";
+        $result = $this->loadJSON($url);
+        return $result;
+        //https://2ch.hk/makaba/mobile.fcgi?task=get_thread&board=b&thread=137975456&post=1
+    }
+    
+    public function getFullLink($filepath, $board) {
+        return "$this->url/$board/$filepath";
+    }
 }
